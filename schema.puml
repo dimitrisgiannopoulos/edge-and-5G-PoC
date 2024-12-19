@@ -1,4 +1,4 @@
-@startuml
+@startuml schema
 
 title 5G Network Client to Kubernetes Node Placement
 
