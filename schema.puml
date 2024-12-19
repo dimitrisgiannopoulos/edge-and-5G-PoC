@@ -1,0 +1,26 @@
+@startuml
+
+title 5G Network Client to Kubernetes Node Placement
+
+actor User as U
+
+package "5G Network" {
+    component AMF as A
+    node "5G Cell Tower" as T
+}
+
+package Kubernetes {
+    node "Worker Node (UoP-1)" as W1
+    node "Worker Node (AWS)" as W2
+    component "Custom Controller" as C
+    component "Scheduler" as S
+}
+
+U --> T : Connects via 5G data path
+T --> A : Relays connection information
+A --> C : Reports cell tower (e.g., UoP-1)
+C --> S : Updates deployment nodeAffinity
+S --> W1 : Places server pod based on affinity
+U --> W1 : Accesses server via low-latency path
+
+@enduml

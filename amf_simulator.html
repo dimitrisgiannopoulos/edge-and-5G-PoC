@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>AMF Simulator</title>
+<!-- Leaflet CSS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<style>
+  body, html {
+    margin: 0; padding: 0; height: 100%; width:100%; font-family: Arial, sans-serif;
+  }
+  #map {
+    width: 100%;
+    height: 90%;
+  }
+  #info {
+    height: 10%;
+    padding: 10px;
+    box-sizing: border-box;
+  }
+  #current-tower {
+    font-weight: bold;
+    color: #333;
+  }
+</style>
+</head>
+<body>
+
+<div id="map"></div>
+<div id="info">
+  Current connected cell tower: <span id="current-tower">None</span>
+</div>
+
+<!-- Include Leaflet JS before your script that uses L -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script>
+// Initial coordinates for the two cell towers
+// Frankfurt (AWS cell tower)
+var tower1 = { name: "Frankfurt (AWS Cell)", lat: 50.1109, lng: 8.6821 };
+
+// Patras (UoP cell tower)
+var tower2 = { name: "Patras (UoP Cell)", lat: 38.2466, lng: 21.7346 };
+
+// Initial user location
+var userPos = { lat: 45.0, lng: 12.0 };
+
+// Create the map
+var map = L.map('map').setView([45, 12], 5);
+
+// Add a tile layer (OpenStreetMap)
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  maxZoom: 19,
+  attribution: '&copy; OpenStreetMap contributors'
+}).addTo(map);
+
+// Add markers for the towers
+var tower1Marker = L.marker([tower1.lat, tower1.lng], {title:tower1.name}).addTo(map)
+  .bindPopup(tower1.name);
+var tower2Marker = L.marker([tower2.lat, tower2.lng], {title:tower2.name}).addTo(map)
+  .bindPopup(tower2.name);
+
+// Add a draggable user marker
+var userMarker = L.marker([userPos.lat, userPos.lng], {draggable: true, title: "User Location"}).addTo(map);
+userMarker.bindPopup("Drag me around!");
+
+// Track current connected tower
+var currentTowerName = null;
+
+// Haversine formula
+function haversineDistance(lat1, lon1, lat2, lon2) {
+  var R = 6371e3; // metres
+  var φ1 = lat1 * Math.PI/180;
+  var φ2 = lat2 * Math.PI/180;
+  var Δφ = (lat2 - lat1) * Math.PI/180;
+  var Δλ = (lon2 - lon1) * Math.PI/180;
+  
+  var a = Math.sin(Δφ/2)*Math.sin(Δφ/2) +
+          Math.cos(φ1)*Math.cos(φ2)*Math.sin(Δλ/2)*Math.sin(Δλ/2);
+  var c = 2*Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+  
+  var d = R*c;
+  return d;
+}
+
+function getClosestTower(lat, lng) {
+  var dist1 = haversineDistance(lat, lng, tower1.lat, tower1.lng);
+  var dist2 = haversineDistance(lat, lng, tower2.lat, tower2.lng);
+  return dist1 < dist2 ? tower1.name : tower2.name;
+}
+
+function updateConnection() {
+  var pos = userMarker.getLatLng();
+  var newTower = getClosestTower(pos.lat, pos.lng);
+  if (newTower !== currentTowerName) {
+    currentTowerName = newTower;
+    document.getElementById("current-tower").textContent = currentTowerName;
+    console.log("User is now connected to " + currentTowerName);
+  }
+}
+
+// Update connection immediately at startup
+updateConnection();
+
+// Add event listener for when the user finishes dragging the marker
+userMarker.on('dragend', function(e) {
+  updateConnection();
+});
+</script>
+
+</body>
+</html>

@@ -9,6 +9,9 @@ resource "rke_cluster" "k8s_cluster" {
     user    = var.master_ssh_username
     ssh_key = file(var.master_private_key_path)
     role    = ["controlplane", "etcd", "worker"]
+    labels = {
+      "cell-tower" = "UoP-1"
+    }
   }
 
   # Worker node
@@ -17,6 +20,9 @@ resource "rke_cluster" "k8s_cluster" {
     user    = var.worker_ssh_username
     ssh_key = file(var.worker_private_key_path)
     role    = ["worker"]
+    labels = {
+      "cell-tower" = "AWS"
+    }
   }
 
   ssh_agent_auth = false
