@@ -97,6 +97,21 @@ function updateConnection() {
     currentTowerName = newTower;
     document.getElementById("current-tower").textContent = currentTowerName;
     console.log("User is now connected to " + currentTowerName);
+
+    // Send the current tower to the backend
+    fetch('/tower', { // Relative URL for backend API
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ tower: currentTowerName }),
+    }).then((response) => {
+      if (response.ok) {
+        console.log('Tower updated successfully in backend');
+      } else {
+        console.error('Failed to update tower in backend');
+      }
+    });
   }
 }
 

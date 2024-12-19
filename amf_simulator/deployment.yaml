@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: amf-simulator
+  labels:
+    app: amf-simulator
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: amf-simulator
+  template:
+    metadata:
+      labels:
+        app: amf-simulator
+    spec:
+      containers:
+      - name: amf-simulator
+        image: dimitrisgian/amf-simulator:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: amf-simulator
+spec:
+  selector:
+    app: amf-simulator
+  ports:
+    - protocol: TCP
+      port: 80        # Service port
+      targetPort: 80  # Container port
+      nodePort: 31231 # NodePort to expose
+  type: NodePort
