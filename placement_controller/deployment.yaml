@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: placement-controller
+  namespace: dimit
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: placement-controller
+  template:
+    metadata:
+      labels:
+        app: placement-controller
+    spec:
+      serviceAccountName: placement-controller
+      containers:
+        - name: placement-controller
+          imagePullPolicy: Always
+          image: dimitrisgian/placement-controller:latest
+          env:
+            - name: TARGET_NAMESPACE
+              value: "dimit"
+            - name: AMF_SIMULATOR_NAMESPACE
+              value: "dimit"
+            - name: TOWER_LABEL_MAPPING
+              value: '{"Frankfurt (AWS Cell)": "AWS", "Patras (UoP Cell)": "UoP-1"}'
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: placement-controller
+  namespace: dimit
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: placement-controller-clusterrole
+rules:
+  - apiGroups: ["apps"]
+    resources: ["deployments"]
+    verbs: ["get", "list", "watch", "update"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: placement-controller-clusterrolebinding
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: placement-controller-clusterrole
+subjects:
+  - kind: ServiceAccount
+    name: placement-controller
+    namespace: dimit

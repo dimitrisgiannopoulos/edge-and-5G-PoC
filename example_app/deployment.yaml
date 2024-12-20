@@ -4,6 +4,7 @@ metadata:
   name: example-app
   labels:
     app: example-app
+    follow-user: "true"
 spec:
   replicas: 1
   selector:
