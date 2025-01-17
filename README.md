@@ -134,7 +134,7 @@ The controller polls the AMF Simulator every 5 seconds and updates Kubernetes de
 
 - **`amf_simulator/`:** AMF Simulator code and deployment configuration.
 - **`example_app/`:** Bouncing Ball Game application.
-- **`controller.js`:** Custom controller for dynamic deployment.
+- **`placement_controller/`:** Custom controller for dynamic deployment.
 - **`infrastructure/`:** Terraform scripts for Kubernetes setup.
 
 ---
@@ -148,3 +148,33 @@ The controller polls the AMF Simulator every 5 seconds and updates Kubernetes de
 ## **License**
 This project is licensed under the Apache 2.0 - see the `LICENSE` file for details.
 
+---
+
+## **Example Commands**
+
+1. Create namespace and switch:
+   ```bash
+   kubectl create ns dimit
+   kubens dimit
+   ```
+
+2. Apply all components:
+   ```bash
+   kubectl apply -f amf_simulator/deployment.yaml
+   kubectl apply -f placement_controller/deployment.yaml
+   kubectl apply -f example_app/deployment.yaml
+   ```
+
+3. Verify deployments and services:
+   ```bash
+   kubectl get all
+   kubectl get nodes -o wide
+   ```
+
+### **Testing**
+- Access the Bouncing Ball Game at `http://<master-ip>:31234`.
+- Access the AMF Simulator at `http://<master-ip>:31231`.
+- Move the user closer to a specific node in the AMF Simulator to observe dynamic application placement.
+
+## Note:
+Due to the way my infrastructure is setup, I can't access all nodeport apps from the master node. I need to access them from the node IP it runs on.
